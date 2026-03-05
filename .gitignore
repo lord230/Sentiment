@@ -16,10 +16,8 @@ datasets/
 CheckPoints/
 # Logs and outputs
 runs/
-results/
 Transformers/results/
 Transformers/test/
-Transformers/Screenshot/
 Transformers/Models/*.png
 Transformers/CheckPoints/
 Transformers/Datasets/
