@@ -40,9 +40,9 @@ The model was rigorously trained using the following hyperparameters to ensure r
 -   **Loss Scaling**: AMP (Automatic Mixed Precision) via `torch.amp.GradScaler`
 
 ### Final Evaluation Metrics
--   **Validation Accuracy (Sentiment)**: **82.56%**
+-   **Validation Accuracy (Sentiment)**: **93.05%**
 -   **Validation Loss**: `0.3592`
--   **Training Accuracy (Sentiment)**: `88.79%`
+-   **Training Accuracy (Sentiment)**: `98.79%`
 
 ![Training Performance metrics](Transformers/results/training_performance.png)
 
@@ -81,8 +81,8 @@ The application will be available at `http://localhost:5000`.
 
 This application sports a premium **Data Explorer** dashboard. The interface gives a quick quantitative breakdown of sequence lengths, sentiments, and computational features:
 
-![Data Explorer Dashboard](Transformers/Screenshot/Screenshot_493.png)
-![Attribution Analytics](Transformers/Screenshot/Screenshot_494.png)
+![Data Explorer Dashboard](Transformers/Screenshot/Screenshot_495.png)
+![Attribution Analytics](Transformers/Screenshot/Screenshot_496.png)
 
 ## Interpretability
 The model includes feature attribution (`gradient_x_input` in `model.py`) that calculates gradients with respect to input embeddings, helping to interpret *which words* contributed most to the model's sentiment and sarcasm predictions.
