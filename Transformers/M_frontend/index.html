@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sentiment Explainability</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --primary: #3b82f6;
+    --secondary: #1d4ed8;
+    --bg: linear-gradient(180deg, #f8fafc, #eef2ff);
+    --card: rgba(255,255,255,0.92);
+    --text: #0f172a;
+    --muted: #6b7280;
+    --radius: 18px;
+    --shadow: 0 20px 40px rgba(15,23,42,0.08);
+}
+
+/* ----------------- GLOBAL ----------------- */
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------- HEADER ----------------- */
+header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 42px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.4rem;
+}
+
+header p {
+    opacity: 0.9;
+    margin-top: 8px;
+}
+
+/* ----------------- LAYOUT ----------------- */
+.container {
+    max-width: 1100px;
+    margin: -40px auto 40px;
+    padding: 20px;
+}
+
+.card {
+    background: var(--card);
+    backdrop-filter: blur(14px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 26px;
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h3 {
+    margin: 0 0 14px;
+    font-size: 1.25rem;
+    letter-spacing: -0.3px;
+}
+
+/* ----------------- INPUT ----------------- */
+textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 18px;
+    font-size: 16px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    transition: 0.2s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+    background: white;
+}
+
+/* ----------------- BUTTON ----------------- */
+button {
+    margin-top: 18px;
+    padding: 14px 36px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 28px rgba(59,130,246,0.35);
+}
+
+/* ----------------- EXAMPLES ----------------- */
+.examples {
+    margin-top: 16px;
+}
+
+.examples span {
+    display: inline-block;
+    margin: 6px 8px 0 0;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #1e40af;
+    cursor: pointer;
+}
+
+.examples span:hover {
+    background: #dbeafe;
+}
+
+/* ----------------- SENTIMENT ----------------- */
+.sentiment-box {
+    display: inline-block;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.Positive { background: #dcfce7; color: #166534; }
+.Negative { background: #fee2e2; color: #991b1b; }
+.Neutral  { background: #e5e7eb; color: #374151; }
+
+/* ----------------- CONFIDENCE RING ----------------- */
+.confidence {
+    margin-top: 16px;
+    width: 120px;
+    position: relative;
+}
+
+.conf-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+/* ----------------- HEATMAP ----------------- */
+.heatmap-text {
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: 14px;
+    background: #f8fafc;
+    line-height: 1.8;
+}
+
+.heat-word {
+    display: inline-block;
+    padding: 3px 6px;
+    border-radius: 6px;
+    margin: 2px;
+}
+
+/* ----------------- WORD GRID ----------------- */
+.words {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.word-card {
+    width: 180px;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 12px 24px rgba(15,23,42,0.08);
+    border-left: 4px solid var(--primary);
+}
+
+.word-text {
+    font-weight: 700;
+}
+
+.word-meta {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+/* ----------------- SCALE ----------------- */
+.scale {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.scale-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #60a5fa, #2563eb);
+    transition: width 0.4s ease;
+}
+
+.importance-text {
+    font-size: 12px;
+    text-align: right;
+    color: var(--muted);
+}
+/* Analysis reveal animation */
+.show-analysis {
+    display: block !important;
+    animation: reveal 0.6s ease forwards;
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ----------------- FOOTER ----------------- */
+footer {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Sentiment Analysis & Explainability</h1>
+    <p>Attention visualization • Confidence scoring • Word attribution</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+    <h3>Input Text</h3>
+    <textarea id="text" placeholder="Type your sentence here..."></textarea>
+    <button onclick="analyze()">Analyze</button>
+
+<div class="examples">
+    <b>Try examples:</b><br>
+
+    <!-- Positive -->
+    <span onclick="fillExample(this)">I absolutely loved the movie, it was fantastic!</span>
+
+
+    <!-- Negative -->
+    <span onclick="fillExample(this)">The service was okay but the food was terrible.</span>
+    <span onclick="fillExample(this)">I regret buying this, it stopped working in two days.</span>
+
+    <!-- Neutral -->
+    <span onclick="fillExample(this)">Nothing special, just an average experience.</span>
+
+
+    <!-- Mixed / Contrast -->
+    <span onclick="fillExample(this)">The design looks great but the performance is disappointing.</span>
+
+    <!-- Sarcasm / Subtle -->
+    <span onclick="fillExample(this)">Great, another update that broke everything.</span>
+    <span onclick="fillExample(this)">Yeah, waiting for two hours was totally worth it.</span>
+
+    <!-- UX / Tech -->
+    <span onclick="fillExample(this)">The interface is clean, but navigation feels confusing.</span>
+    <span onclick="fillExample(this)">The model gives accurate results but inference is slow.</span>
+</div>
+
+
+<div class="card" id="analysisCard" style="display:none;">
+
+    <h3>Predicted Sentiment</h3>
+    <div id="sentiment"></div>
+
+    <div class="confidence">
+        <svg width="120" height="120">
+            <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="10" fill="none"/>
+            <circle id="confRing" cx="60" cy="60" r="50"
+                stroke="#3b82f6" stroke-width="10"
+                fill="none"
+                stroke-dasharray="314"
+                stroke-dashoffset="314"
+                stroke-linecap="round"
+                transform="rotate(-90 60 60)" />
+        </svg>
+        <div class="conf-text" id="confText">0%</div>
+    </div>
+
+    <h3 style="margin-top:24px;">Attention Heatmap</h3>
+    <div class="heatmap-text" id="heatmap"></div>
+
+    <h3 style="margin-top:24px;">Word-level Explainability</h3>
+    <div class="words" id="words"></div>
+</div>
+
+</div>
+
+
+
+<script>
+/* ===============================
+   UTILITIES
+================================ */
+
+/* Reconstruct clean sentence from SentencePiece tokens */
+
+
+function reconstructText(tokens) {
+    let text = "";
+
+    tokens.forEach(t => {
+        let w = t.word.replace("▁", "");
+
+        if (/^[.,!?;:]$/.test(w)) {
+            text += w;
+        } else {
+            text += (text ? " " : "") + w;
+        }
+    });
+
+    return text;
+}
+
+/* Confidence = average of top-K important tokens */
+function computeConfidence(tokens, k = 5) {
+    const top = [...tokens]
+        .map(t => t.importance)
+        .sort((a, b) => b - a)
+        .slice(0, k);
+
+    const avg = top.reduce((a, b) => a + b, 0) / top.length;
+    return Math.round(avg * 100);
+}
+
+/* Fill textarea with example text */
+function fillExample(el) {
+    document.getElementById("text").value = el.innerText;
+}
+
+/* ===============================
+   MAIN ANALYZE FUNCTION
+================================ */
+
+async function analyze() {
+    const input = document.getElementById("text").value.trim();
+    if (!input) return;
+
+    const res = await fetch("http://127.0.0.1:5000/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input })
+    });
+
+    const data = await res.json();
+
+    /* -------------------------------
+       SENTIMENT
+    -------------------------------- */
+    document.getElementById("sentiment").innerHTML =
+        `<span class="sentiment-box ${data.sentiment}">
+            ${data.sentiment}
+        </span>`;
+
+    /* -------------------------------
+       CONFIDENCE RING
+    -------------------------------- */
+    const confidence = computeConfidence(data.explanation);
+    document.getElementById("confText").innerText = confidence + "%";
+
+    const ring = document.getElementById("confRing");
+    ring.style.strokeDashoffset =
+        314 - (314 * confidence) / 100;
+
+    /* -------------------------------
+       ATTENTION HEATMAP
+    -------------------------------- */
+    const heatmap = document.getElementById("heatmap");
+    heatmap.innerHTML = "";
+
+    data.explanation.forEach(t => {
+        const span = document.createElement("span");
+        const word = t.word.replace("▁", "");
+
+        if (/^[.,!?;:]$/.test(word)) {
+            span.innerText = word;
+            span.style.marginRight = "4px";
+        } else {
+            span.innerText = " " + word;
+        }
+
+        const intensity = Math.min(0.85, t.importance);
+        span.className = "heat-word";
+        span.style.background = `rgba(59,130,246,${intensity})`;
+        span.style.color = intensity > 0.55 ? "white" : "#0f172a";
+
+        heatmap.appendChild(span);
+        // Show analysis card on analyze
+        const analysisCard = document.getElementById("analysisCard");
+        analysisCard.classList.remove("show-analysis");
+        void analysisCard.offsetWidth; // force reflow
+        analysisCard.classList.add("show-analysis");
+
+    });
+
+    /* -------------------------------
+       WORD-LEVEL EXPLANATION CARDS
+    -------------------------------- */
+    const wordsDiv = document.getElementById("words");
+    wordsDiv.innerHTML = "";
+
+    data.explanation.forEach(t => {
+        const cleanWord = t.word.replace("▁", "");
+
+        const card = document.createElement("div");
+        card.className = "word-card";
+
+        card.innerHTML = `
+            <div class="word-text">${cleanWord || "(punct)"}</div>
+            <div class="word-meta">POS: ${t.pos}</div>
+
+            <div class="scale">
+                <div class="scale-fill"
+                     style="width:${Math.round(t.importance * 100)}%">
+                </div>
+            </div>
+
+            <div class="importance-text">
+                Importance: ${t.importance.toFixed(3)}
+            </div>
+        `;
+
+        wordsDiv.appendChild(card);
+    });
+}
+</script>
+
+
+</body>
+</html>

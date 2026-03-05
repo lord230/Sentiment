@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explainable Sentiment Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <div class="background-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <div class="page">
+    <header class="header text-center">
+      <h1>Sentiment Analysis <span class="highlight">Data Explorer</span></h1>
+      <p class="description">
+        An advanced data-centric interface for understanding transformer predictions. Explore token
+        attribution mapping and feature importance all in one comprehensive dashboard.
+      </p>
+    </header>
+
+    <main class="app-container">
+      <!-- LEFT PANEL -->
+      <div class="glass-panel input-panel">
+        <div class="panel-header">
+          <h2>Input Sequence</h2>
+          <p class="subtitle">Enter your text or choose a benchmark example</p>
+        </div>
+
+        <textarea id="textInput" placeholder="Type data sequence here..."></textarea>
+
+        <button class="btn-primary" onclick="analyze()" id="analyzeBtn">
+          <span class="btn-text">Execute Analysis</span>
+          <div class="loader" id="loader" style="display: none;"></div>
+        </button>
+
+        <div class="examples-section">
+          <h3>Benchmark Data</h3>
+          <div class="example-pills">
+            <button class="pill" onclick="useExample(1)">Strong Positive</button>
+            <button class="pill" onclick="useExample(2)">Strong Negative</button>
+            <button class="pill" onclick="useExample(3)">Mixed Review</button>
+            <button class="pill" onclick="useExample(4)">Poor Product Review</button>
+            <button class="pill" onclick="useExample(10)">Film Corpus</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="glass-panel output-panel">
+        <div class="panel-header">
+          <h2>Analytics Dashboard</h2>
+        </div>
+
+        <div class="results-container">
+
+          <!-- DASHBOARD METRICS -->
+          <div class="metrics-dashboard">
+            <div class="metric-card">
+              <span class="metric-icon">📊</span>
+              <span class="metric-label">Sentiment</span>
+              <div id="sentimentBox" class="metric-value neutral">—</div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">📝</span>
+              <span class="metric-label">Token Count</span>
+              <div id="wordCountBox" class="metric-value neutral">0</div>
+            </div>
+          </div>
+
+          <!-- EXPLAINABILITY -->
+          <div class="explain-box">
+            <div class="explain-header">
+              <h3>Attribution Heatmap</h3>
+              <span class="info-icon"
+                title="Tokens with brighter backgrounds heavily influenced the model's final sentiment classification.">&#9432;</span>
+            </div>
+            <div id="tokens" class="tokens-container">
+              <div class="placeholder-text">Run analysis to generate the attribution heatmap.</div>
+            </div>
+          </div>
+
+          <!-- DATA CHART -->
+          <div class="chart-box">
+            <div class="explain-header">
+              <h3>Top Contributing Features</h3>
+              <span class="info-icon"
+                title="A horizontal bar chart quantifying the top 5 highest-impacting words for this sequence.">&#9432;</span>
+            </div>
+            <div id="barChart" class="bar-chart-container">
+              <div class="placeholder-text">Chart data will appear here.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

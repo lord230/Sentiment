@@ -1,0 +1,53 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch checkpoints and large models
+*.pt
+*.pth
+*.ckpt
+CheckPoints/
+
+# Datasets
+*.csv
+dataset/
+datasets/
+CheckPoints/
+# Logs and outputs
+runs/
+results/
+Transformers/results/
+Transformers/test/
+Transformers/Screenshot/
+Transformers/Models/*.png
+Transformers/CheckPoints/
+Transformers/Datasets/
+*.log
+
+# Environment variables
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.idea/
+.vscode/
+
+# Virtual environment markers
+.Python
+poetry.lock
+Pipfile.lock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
